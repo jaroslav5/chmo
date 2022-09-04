@@ -1,0 +1,156 @@
+import pygame
+pygame.font.SysFont('arial', 36)
+pygame.font.Font('/адрес/Arial.ttf', 36)
+
+pygame.init()
+win=pygame.display.set_mode((500,500))
+
+pygame.display.set_caption("Cubes Game")
+
+walkRight=[pygame.image.load('chmonaranraite.png'),
+      pygame.image.load('chmonaranraite2.png'),pygame.image.load('chmonaranraite3.png')]
+
+walkLeft=[pygame.image.load('chmonaranleft.png'),
+      pygame.image.load('chmonaranleft2.png'),pygame.image.load('chmonaranleft3.png')]
+
+walkJamp=[pygame.image.load('chmonagampik.png'), pygame.image.load('chmonagampik3.png'), pygame.image.load('chmonagampik2.png')]
+
+playerStand=pygame.image.load('chmonastoy.png')
+x=50
+y=450
+width=50
+height=50
+speed=5
+
+isJump=False
+jumpCount=10
+run=True
+
+left=False
+right=False
+up=False
+animcount=0
+lastMove=""
+
+class snaryad():
+    def __init__(self, x,y,radius, color, facing):
+        self.x=x
+        self.y=y
+        self.radius=radius
+        self.color=color
+        self.facing=facing
+        self.vel=8*facing
+
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
+clock=pygame.time.Clock()
+
+def drow():
+
+    global animcount
+    win.fill((255, 255, 255))
+    if animcount+1>=30:
+        animcount=0
+    if left:
+        win.blit(walkLeft[animcount//10],(x,y))
+        animcount+=1
+    elif right:
+        win.blit(walkRight[animcount // 10], (x, y))
+        animcount+=1
+    elif up:
+        win.blit(walkJamp[animcount//10],(x,y))
+        animcount+=1
+    else:
+        win.blit(playerStand,(x,y))
+
+    for bullet in bullets:
+        bullet.draw(win)
+
+    #pygame.draw.rect(win,(0,0,255),(x,y,width,height))
+    pygame.display.update()
+bullets=[]
+while run:
+    clock.tick(30)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    for bullet in bullets:
+        if bullet.x<500 and bullet.x>0:
+            bullet.x+=bullet.vel
+        else:
+            bullets.pop(bullets.index(bullet))
+
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_f]:
+        if lastMove=="right":
+            facing=1
+        else:
+            facing=-1
+
+        if len(bullets)<5:
+           bullets.append(snaryad(round(x+width//2),round(y+height//2), 3, (255,0,0), facing))
+
+    if keys[pygame.K_LEFT] and x>0:
+        x -= speed
+        left=True
+        right=False
+        up=False
+        lastMove="left"
+    elif keys[pygame.K_RIGHT] and x <500-width:
+        x += speed
+        left=False
+        right=True
+        up=False
+        lastMove="right"
+    elif keys[pygame.K_SPACE]:
+        left = False
+        right = False
+        up = True
+    else:
+        left=False
+        right=False
+        up=False
+        animcount=0
+    if not (isJump):
+        if keys[pygame.K_UP]:
+            y -= speed
+        if keys[pygame.K_DOWN] :
+            y += speed
+        if keys[pygame.K_SPACE]:
+            isJump = True
+    else:
+        if jumpCount >= -10:
+            if jumpCount < 0:
+                y += (jumpCount**2) / 2
+            else:
+                y -= (jumpCount**2) / 2
+            jumpCount -= 1
+        else:
+            isJump = False
+            jumpCount = 10
+def Ai_level_generation(file):
+    levelfile = open(file,'En')
+    levelfile = [line.strip() for line in lvlfile]
+    points = set()
+    N = list()
+    for y in range(len(lvlfile)):
+            for x in range(ln(lvlfile[y])):
+                in lvlfile[y][x] == '0':
+                points.add((x,y))
+graf ={}
+for i in points:
+    temp = set()
+    if(i[0] - 1, i[1])in points:
+        temp.add((i[0] - 1, i[1]))
+    if(i[0] + 1, i[1])in points:
+        temp.add((i[0] + 1, i[1]))
+    if(i[0], i[1] - 1)in points:
+        temp.add((i[0], i[1] - 1))
+    if(i[0], i[1] + 1)in points:
+        temp.add((i[0], i[1] + 1))
+    graf[i] =temp
+
+    return graf
+
+    drow()
